@@ -1,10 +1,15 @@
 import enum
-from datetime import datetime
+from datetime import datetime, timezone
 
-from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey, Float, Boolean
+from sqlalchemy import Boolean, Column, DateTime, Enum, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from app.database import Base
+
+
+def utc_now():
+    # Preserve the initial schema: timestamps are stored as naive UTC values.
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 class ApplicationStatus(str, enum.Enum):
@@ -30,6 +35,10 @@ class Participant(Base):
     hashed_password = Column(String, nullable=False)
     is_committee = Column(Boolean, default=False)
 
+    @property
+    def access_role(self):
+        return "committee" if self.is_committee else "participant"
+
     applications = relationship("Application", back_populates="participant")
 
 
@@ -40,7 +49,7 @@ class Application(Base):
     participant_id = Column(Integer, ForeignKey("participants.id"), nullable=False)
     topic = Column(String, nullable=False)
     status = Column(Enum(ApplicationStatus), default=ApplicationStatus.NEW, nullable=False)
-    submitted_at = Column(DateTime, default=datetime.utcnow)
+    submitted_at = Column(DateTime, default=utc_now)
 
     participant = relationship("Participant", back_populates="applications")
     fee = relationship("Fee", back_populates="application", uselist=False)

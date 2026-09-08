@@ -1,37 +1,61 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>ConfManager — заявки</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 2rem; }
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
-        .status-accepted { color: green; font-weight: bold; }
-        .status-rejected { color: red; }
-        .status-new, .status-under_review { color: #888; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ConfManager — конференция</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="/static/app.js" defer></script>
 </head>
 <body>
-    <h1>Заявки на участие в конференции</h1>
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>участник (ID)</th>
-            <th>тема доклада</th>
-            <th>статус</th>
-            <th>подана</th>
-        </tr>
-        {% for a in applications %}
-        <tr>
-            <td>{{ a.id }}</td>
-            <td>{{ a.participant_id }}</td>
-            <td>{{ a.topic }}</td>
-            <td class="status-{{ a.status.value }}">{{ a.status.value }}</td>
-            <td>{{ a.submitted_at }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    <p>Оплата оргвзноса доступна оргкомитету только для заявок со статусом <b>accepted</b>.</p>
+  <main>
+    <header>
+      <div><p class="eyebrow">УЧАСТИЕ В КОНФЕРЕНЦИИ</p><h1>ConfManager</h1></div>
+      <nav><a href="/docs">API</a><button id="logout" hidden>Выйти</button></nav>
+    </header>
+    <p id="message" role="status" aria-live="polite"></p>
+    <section id="auth-panels" class="columns">
+      <form id="login-form" class="panel">
+        <h2>Вход</h2>
+        <p>Участнику доступны свои заявки, оргкомитету — все заявки.</p>
+        <label>Email<input name="email" type="email" required autocomplete="username"></label>
+        <label>Пароль<input name="password" type="password" required
+          autocomplete="current-password" maxlength="128"></label>
+        <button type="submit">Войти</button>
+      </form>
+      <form id="registration-form" class="panel">
+        <h2>Регистрация участника</h2>
+        <label>ФИО<input name="full_name" required maxlength="200" autocomplete="name"></label>
+        <label>Email<input name="email" type="email" required autocomplete="email"></label>
+        <label>Организация<input name="organization" maxlength="200"
+          autocomplete="organization"></label>
+        <label>Пароль<input name="password" type="password" required
+          minlength="12" maxlength="128" autocomplete="new-password"></label>
+        <small>От 12 до 128 символов. Запомните пароль для входа.</small>
+        <button type="submit">Зарегистрироваться</button>
+      </form>
+    </section>
+    <section id="workspace" hidden>
+      <div class="workspace-heading"><div><h2 id="account-name"></h2>
+        <p id="account-role"></p></div><button id="refresh" class="secondary">Обновить</button></div>
+      <form id="application-form" class="panel application-form">
+        <h2>Подать заявку на доклад</h2>
+        <label>Тема доклада<input name="topic" required maxlength="500"></label>
+        <button type="submit">Подать заявку</button>
+      </form>
+      <h2 id="applications-heading">Мои заявки</h2>
+      <p id="empty-state">Заявок пока нет.</p>
+      <div class="table-scroll">
+        <table id="applications-table" hidden>
+          <thead><tr><th>ID</th><th>Участник</th><th>Тема доклада</th>
+            <th>Статус</th><th>Оргвзнос</th><th>Действия</th></tr></thead>
+          <tbody id="applications-body"></tbody>
+        </table>
+      </div>
+      <p class="note">Оргвзнос отмечается оплаченным после принятия заявки.
+        Оплаченную заявку нельзя отклонить.</p>
+    </section>
+    <footer>Учебный проект · участники, заявки и оргвзносы</footer>
+  </main>
 </body>
 </html>

@@ -1,0 +1,37 @@
+* { box-sizing: border-box; }
+:root { font-family: Arial, sans-serif; color: #172936; background: #f4f6f8; }
+body { margin: 0; }
+main { max-width: 1180px; margin: auto; padding: 36px 24px; }
+header, nav, .workspace-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+h1 { margin: 0; font-size: 34px; }
+h2 { margin: 0 0 16px; font-size: 21px; }
+p { line-height: 1.5; }
+.eyebrow { font-size: 11px; letter-spacing: 2px; color: #596c7a; }
+a { color: #185db3; }
+.columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.panel { background: white; padding: 28px; border: 1px solid #d6dfe5; border-radius: 10px; }
+label { display: block; margin: 16px 0; font-size: 14px; font-weight: 600; }
+input { display: block; width: 100%; margin-top: 8px; padding: 12px; border: 1px solid #aebec9; border-radius: 5px; font: inherit; }
+button { padding: 11px 17px; background: #185db3; color: white; border: 0; border-radius: 5px; font: inherit; cursor: pointer; }
+button.secondary { background: #e4ebf2; color: #172936; }
+button:disabled { cursor: wait; opacity: 0.65; }
+button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #518edc; outline-offset: 3px; }
+small, .note, footer { color: #596c7a; font-size: 13px; line-height: 1.6; }
+small { display: block; margin-bottom: 18px; }
+#message { min-height: 24px; margin: 24px 0; }
+#message.error { color: #a31f2b; }
+#message.success { color: #176339; }
+.application-form { margin: 20px 0 28px; }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: white; }
+th, td { padding: 15px; text-align: left; border-bottom: 1px solid #d6dfe5; vertical-align: top; }
+th { background: #e9eff4; font-size: 13px; }
+td { font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+td button { margin: 3px; padding: 8px; font-size: 12px; }
+td input { min-width: 110px; padding: 8px; }
+.status { display: inline-block; padding: 4px 8px; border-radius: 4px; background: #e9eff4; }
+.status.accepted { background: #def1e6; color: #176339; }
+.status.rejected { background: #f7e3e5; color: #a31f2b; }
+footer { margin-top: 44px; }
+[hidden] { display: none !important; }
+@media (max-width: 760px) { .columns { grid-template-columns: 1fr; } main { padding: 20px 14px; } .panel { padding: 20px; } h1 { font-size: 27px; } }

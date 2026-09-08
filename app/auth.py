@@ -1,29 +1,53 @@
-import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
-from jose import jwt
-from passlib.context import CryptContext
+import jwt
+from pwdlib import PasswordHash
+from pwdlib.exceptions import UnknownHashError
+from pwdlib.hashers.argon2 import Argon2Hasher
+from pwdlib.hashers.bcrypt import BcryptHasher
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+from app.config import settings
 
-SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-me")
+# New hashes use Argon2. Existing bcrypt hashes remain readable.
+password_hash = PasswordHash((Argon2Hasher(), BcryptHasher()))
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    return password_hash.hash(password)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        return password_hash.verify(plain_password, hashed_password)
+    except (UnknownHashError, ValueError):
+        return False
 
 
-def create_access_token(subject: str, is_committee: bool = False) -> str:
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    payload = {"sub": subject, "is_committee": is_committee, "exp": expire}
-    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+def verify_and_upgrade_password(password: str, hashed_password: str):
+    try:
+        return password_hash.verify_and_update(password, hashed_password)
+    except (UnknownHashError, ValueError):
+        return False, None
+
+
+def create_access_token(subject: str) -> str:
+    now = datetime.now(timezone.utc)
+    return jwt.encode(
+        {
+            "sub": subject,
+            "iat": now,
+            "exp": now + timedelta(minutes=settings.access_token_expire_minutes),
+        },
+        settings.secret_key,
+        algorithm=ALGORITHM,
+    )
 
 
 def decode_access_token(token: str) -> dict:
-    return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    return jwt.decode(
+        token,
+        settings.secret_key,
+        algorithms=[ALGORITHM],
+        options={"require": ["sub", "exp"]},
+    )

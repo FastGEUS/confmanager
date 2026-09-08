@@ -8,3 +8,8 @@ venv/
 .pytest_cache/
 htmlcov/
 .coverage
+.env.*
+!.env.example
+.ruff_cache/
+reports/
+*.egg-info/
