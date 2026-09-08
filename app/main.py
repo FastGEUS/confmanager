@@ -7,10 +7,12 @@ from sqlalchemy.orm import Session
 from app import crud, models, schemas
 from app.database import Base, engine, get_db
 from app.auth import verify_password, create_access_token, decode_access_token
+from app.web import router as web_router
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="ConfManager", version="0.1.0")
+app.include_router(web_router)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 APP_VERSION = "0.1.0"

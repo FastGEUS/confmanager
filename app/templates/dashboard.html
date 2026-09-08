@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>ConfManager — заявки</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
+        .status-accepted { color: green; font-weight: bold; }
+        .status-rejected { color: red; }
+        .status-new, .status-under_review { color: #888; }
+    </style>
+</head>
+<body>
+    <h1>Заявки на участие в конференции</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>участник (ID)</th>
+            <th>тема доклада</th>
+            <th>статус</th>
+            <th>подана</th>
+        </tr>
+        {% for a in applications %}
+        <tr>
+            <td>{{ a.id }}</td>
+            <td>{{ a.participant_id }}</td>
+            <td>{{ a.topic }}</td>
+            <td class="status-{{ a.status.value }}">{{ a.status.value }}</td>
+            <td>{{ a.submitted_at }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <p>Оплата оргвзноса доступна оргкомитету только для заявок со статусом <b>accepted</b>.</p>
+</body>
+</html>
