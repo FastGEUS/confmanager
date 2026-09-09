@@ -17,7 +17,6 @@ from app.web import APP_ROOT
 from app.web import router as web_router
 
 logger = logging.getLogger(__name__)
-BEARER_SCHEME = "bearer"
 
 
 @asynccontextmanager
@@ -77,7 +76,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     if upgraded:
         participant.hashed_password = upgraded
         crud.commit(db)
-    return {"access_token": create_access_token(participant.email), "token_type": BEARER_SCHEME}
+    return {"access_token": create_access_token(participant.email), "token_type": "bearer"}
 
 
 @app.get("/auth/me", response_model=schemas.ParticipantOut)

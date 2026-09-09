@@ -3,10 +3,6 @@
 import argparse
 import os
 import secrets
-
-# The verification runner uses fixed argument lists and never executes shell input.
-import subprocess  # nosec B404
-import sys
 from getpass import getpass
 from pathlib import Path
 
@@ -31,22 +27,6 @@ def write_local_env(destination: Path) -> bool:
     return True
 
 
-def verify():
-    commands = [
-        ["pip", "check"],
-        ["ruff", "check", "."],
-        ["ruff", "format", "--check", "."],
-        ["bandit", "-r", "app", "-q"],
-        ["pytest", "-q"],
-    ]
-    for args in commands:
-        print(f"Checking: {' '.join(args)}", flush=True)
-        # Argument lists are literal module names/options, not user-provided values.
-        subprocess.run(  # nosec B603
-            [sys.executable, "-m", *args], cwd=ROOT, check=True
-        )
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -54,15 +34,11 @@ def main():
     run = sub.add_parser("run")
     run.add_argument("--reload", action="store_true", help="development only")
     sub.add_parser("init-db")
-    sub.add_parser("verify")
     committee = sub.add_parser("create-committee")
     committee.add_argument("--email")
     committee.add_argument("--name", default="Оргкомитет")
     args = parser.parse_args()
     os.chdir(ROOT)
-    if args.command == "verify":
-        verify()
-        return
     if args.command == "setup":
         destination = Path(os.getenv("CONFMANAGER_ENV_FILE") or ROOT / ".env")
         created = write_local_env(destination)
