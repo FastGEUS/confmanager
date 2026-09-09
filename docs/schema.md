@@ -1,51 +1,46 @@
-# Схема данных — ConfManager (ЛР1)
+# Схема данных ConfManager
 
-## Сущности и связи
+Три связанные сущности MVP хранятся в реляционной БД. Схема описана в `app/models.py`. SQLAlchemy создаёт отсутствующие таблицы при setup или старте приложения; уже существующие таблицы и записи сохраняются. Автоматическое изменение существующей схемы не выполняется.
 
+```mermaid
+erDiagram
+    Participant ||--o{ Application : submits
+    Application ||--o| Fee : has
+    Participant {
+        int id PK
+        string full_name
+        string email UK
+        string organization
+        string hashed_password
+        boolean is_committee
+        string role
+    }
+    Application {
+        int id PK
+        int participant_id FK
+        string topic
+        enum status
+        datetime submitted_at
+    }
+    Fee {
+        int id PK
+        int application_id FK,UK
+        float amount
+        enum status
+        datetime paid_at
+    }
 ```
-Participant (1) ──── (N) Application (1) ──── (1) Fee
-```
 
-## Participant
+| Сущность | Ограничения и значения |
+| --- | --- |
+| Participant | Уникальный email, обязательные ФИО и хеш пароля; организация необязательна; регистрация не выдаёт права оргкомитета |
+| Application | Существующий участник, непустая тема; начальный статус new, далее under_review/accepted/rejected |
+| Fee | Существующая заявка, одна запись на заявку; начальный статус unpaid, после оплаты paid и paid_at |
 
-| Поле | Тип | Описание |
-|---|---|---|
-| id | int, PK | Идентификатор |
-| full_name | string | ФИО |
-| email | string, unique | Email (используется для логина) |
-| organization | string, nullable | Организация |
-| role | string | Роль (по умолчанию "participant") |
-| hashed_password | string | Хеш пароля |
-| is_committee | bool | Признак члена оргкомитета |
+`is_committee` является источником прав. Поле role сохранено для совместимости исходной БД; API вычисляет роль committee/participant из is_committee, поэтому рассогласование старого текстового поля не повышает права.
 
-## Application
+В SQLite включены внешние ключи. В PostgreSQL операции статуса и оплаты блокируют заявку, затем взнос, в едином порядке. SQLite подходит для локальной демонстрации; параллельную нагрузку PostgreSQL нужно проверить при развёртывании ЛР2.
 
-| Поле | Тип | Описание |
-|---|---|---|
-| id | int, PK | Идентификатор |
-| participant_id | int, FK → Participant.id | Автор заявки |
-| topic | string | Тема доклада |
-| status | enum | new / under_review / accepted / rejected |
-| submitted_at | datetime | Дата подачи |
+Время хранится как UTC без смещения для совместимости исходной схемы. Сумма пока хранится как Float, но API запрещает нечисловые, отрицательные суммы и более двух десятичных знаков. Переход на Numeric/Decimal и ограничения уровня БД должны выполняться версионированной миграцией в ЛР3. Прямое изменение БД обходит проверки API.
 
-## Fee
-
-| Поле | Тип | Описание |
-|---|---|---|
-| id | int, PK | Идентификатор |
-| application_id | int, FK → Application.id, unique | Связанная заявка (1:1) |
-| amount | float | Сумма оргвзноса |
-| status | enum | unpaid / paid |
-| paid_at | datetime, nullable | Дата оплаты |
-
-## Бизнес-правило целостности
-
-`Fee.status` может перейти в `paid` только если `Application.status == accepted`.
-Проверка выполняется на уровне приложения (`app/crud.py::mark_fee_paid`), а не на уровне БД,
-так как требует чтения связанной записи перед изменением.
-
-## Дальнейшее расширение (следующие ЛР)
-
-В теме 4 предусмотрены также сущности **Invitation** (приглашения), **Abstract** (тезисы) и
-**HotelRequest** (потребность в гостинице) — добавляются на этапе работы с миграциями (ЛР3)
-и очередями рассылки.
+Удаление участников, заявок и взносов не входит в операции ЛР1. Приглашения, тезисы и гостиничные заявки пока не имеют таблиц.
