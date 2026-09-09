@@ -51,7 +51,7 @@ python -m app.manage run
 
 ## Обязательные проверки
 
-Команда проверки: `python -m app.manage verify`.
+Команда проверки: `make verify` при установленном Make.
 
 ```bash
 python -m pip install -r requirements-dev.txt
