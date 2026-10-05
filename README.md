@@ -37,6 +37,10 @@ python -m app.manage run
 
 Документы: [ТЗ](docs/TZ_ConfManager.md) ([Word](docs/TZ_ConfManager.docx)), [API](docs/api.md), [схема данных](docs/schema.md), [Git-процесс и конфликт](docs/git-workflow.md).
 
+## ЛР2: Linux и PostgreSQL
+
+Подготовка нового стенда из двух Ubuntu Server VM описана в [инструкции ЛР2](docs/lr2-deploy.md). В `deploy/` находятся служба systemd, пример окружения, создание БД и скрипт первоначальной установки. Фактические проверки сети, SSH, автозапуска и отказов выполняются на VM; наличие файлов в Git не означает, что стенд уже развёрнут.
+
 ## Проверка перед сдачей и PR
 
 ```bash
