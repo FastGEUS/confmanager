@@ -1,0 +1,27 @@
+[Unit]
+Description=ConfManager conference application
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=confapp
+Group=confapp
+WorkingDirectory=/opt/confmanager/src
+EnvironmentFile=/etc/confmanager/app.env
+Environment=CONFMANAGER_ENV_FILE=
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/confmanager/.venv/bin/python -m app.manage run
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+
+[Install]
+WantedBy=multi-user.target
